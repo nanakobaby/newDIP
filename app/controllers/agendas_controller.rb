@@ -28,6 +28,13 @@ class AgendasController < ApplicationController
     end
 
     @agenda.destroy
+    @member_email = []
+    @member_email << @agenda.team.owner.email
+    @agenda.team.members.each do |member|
+      @member_email << member.email
+    end
+
+    AgendaDeleteMailer.agenda_delete_mail(@member_email, @agenda.title).deliver
     redirect_to dashboard_url, notice: I18n.t('views.messages.agenda_deleted')
   end
 

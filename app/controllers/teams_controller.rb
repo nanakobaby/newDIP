@@ -1,6 +1,6 @@
 class TeamsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_team, only: %i[show edit update destroy]
+  before_action :set_team, only: %i[show edit update destroy changeowner]
 
   def index
     @teams = Team.all
@@ -51,6 +51,14 @@ class TeamsController < ApplicationController
     @team = current_user.keep_team_id ? Team.find(current_user.keep_team_id) : current_user.teams.first
   end
 
+  def changeowner
+    if @team.update(team_params2)
+      redirect_to team_url, notice: I18n.t('views.messages.moved_leader_authority')
+    else
+      redirect_to team_url, notice: I18n.t('views.messages.failed_moved_leader_authority')
+    end
+  end
+
   private
 
   def set_team
@@ -59,5 +67,9 @@ class TeamsController < ApplicationController
 
   def team_params
     params.fetch(:team, {}).permit %i[name icon icon_cache owner_id keep_team_id]
+  end
+
+  def team_params2
+    params.fetch(:team, {}).permit %i[name icon icon_cache owner_id]
   end
 end

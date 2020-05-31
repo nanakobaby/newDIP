@@ -52,7 +52,9 @@ class TeamsController < ApplicationController
   end
 
   def changeowner
-    if @team.update(team_params2)
+    @assign = Assign.find(params[:assign])
+    if @team.update(owner_id: @assign.user.id)
+      ChangeOwnerMailer.change_owner_mail(@assign.user.email).deliver
       redirect_to team_url, notice: I18n.t('views.messages.moved_leader_authority')
     else
       redirect_to team_url, notice: I18n.t('views.messages.failed_moved_leader_authority')
@@ -67,9 +69,5 @@ class TeamsController < ApplicationController
 
   def team_params
     params.fetch(:team, {}).permit %i[name icon icon_cache owner_id keep_team_id]
-  end
-
-  def team_params2
-    params.fetch(:team, {}).permit %i[name icon icon_cache owner_id]
   end
 end
